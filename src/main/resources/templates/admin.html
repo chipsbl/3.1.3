@@ -153,11 +153,11 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="config_btn" th:object="${user}">
+                                <td class="config_btn">
                                     <div>
-                                        <button data-bs-toggle="modal" type="button" class="btn btn-danger" data-bs-target="#deleteModal">Delete
+                                        <button data-bs-toggle="modal" type="button" class="btn btn-danger" th:attr="data-bs-target='#deleteModal' + ${user.id}">Delete
                                         </button>
-                                        <div class="modal fade" id="deleteModal" tabindex="-1"
+                                        <div class="modal fade" th:id="'deleteModal' + ${user.id}"
                                              aria-labelledby="deleteUserModal" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
@@ -169,52 +169,56 @@
                                                     </div>
                                                     <div class="modal-body">
                                                         <div class="container-fluid px-4 border-none">
-                                                            <form>
+                                                            <form th:action="@{/admin(action='delete')}" method="post">
+                                                                <input type="hidden" name="id" th:value="${user.id}">
                                                                 <div class="mb-3 text-center h1 fs-5">
                                                                     <label for="firstName" class="form-label">First
                                                                         name</label>
                                                                     <input type="text" disabled class="form-control w-50 mx-auto"
-                                                                           id="firstNameDelete">
+                                                                           th:value="${user.firstName}" id="firstNameDelete">
                                                                 </div>
                                                                 <div class="mb-3 text-center h1 fs-5">
                                                                     <label for="lastName" class="form-label">Last
                                                                         Name</label>
-                                                                    <input type="text" class="form-control w-50 mx-auto"
-                                                                           id="lastNameDelete">
+                                                                    <input type="text" disabled class="form-control w-50 mx-auto"
+                                                                           th:value="${user.lastName}" id="lastNameDelete">
                                                                 </div>
                                                                 <div class="mb-3 text-center h1 fs-5">
                                                                     <label for="Age" class="form-label">Age</label>
-                                                                    <input type="number"
+                                                                    <input type="number" disabled
                                                                            class="form-control w-50 mx-auto"
-                                                                           id="AgeDelete">
+                                                                           th:value="${user.age}" id="AgeDelete">
                                                                 </div>
                                                                 <div class="mb-3 text-center h1 fs-5">
                                                                     <label for="email" class="form-label">Email</label>
-                                                                    <input type="email"
+                                                                    <input type="email" disabled
                                                                            class="form-control w-50 mx-auto"
-                                                                           id="emailDelete">
+                                                                           th:value="${user.email}" id="emailDelete">
                                                                 </div>
                                                                 <div class="mb-3 h1 text-center fs-5">
-                                                                    <label for="password"
-                                                                           class="form-label">Password</label>
-                                                                    <input type="password"
+                                                                    <label for="username"
+                                                                           class="form-label">Username</label>
+                                                                    <input type="text" disabled
                                                                            class="form-control w-50 mx-auto"
-                                                                           id="passwordDelete">
+                                                                           th:value="${user.username}" id="usernameDelete">
                                                                 </div>
-                                                                <select class="form-select w-50 mx-auto" size="2"
+                                                                <select class="form-select w-50 mx-auto" disabled size="2"
                                                                         multiple
                                                                         aria-label="multiple select example">
-                                                                    <option value="1">ADMIN</option>
-                                                                    <option value="2">USER</option>
+                                                                    <option th:each="role : ${allRoles}"
+                                                                            th:value="${role.id}"
+                                                                            th:text="${role.name}"
+                                                                            th:selected="${#lists.contains(user.roles, role)}">
+                                                                    </option>
                                                                 </select>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                            data-bs-dismiss="modal">Close
+                                                                    </button>
+                                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                                </div>
                                                             </form>
                                                         </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                                data-bs-dismiss="modal">Close
-                                                        </button>
-                                                        <button type="button" class="btn btn-danger">Delete</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -234,7 +238,7 @@
                     </div>
                     <div class="w-100 min-vh-75 d-flex pt-4 justify-content-center align-items-start bg-white">
                         <div class="container-fluid px-4 border-none">
-                            <form th:method="POST" th:action="@{/admin}" th:object="${newUser}">
+                            <form th:method="POST" th:action="@{/admin(action='create')}" th:object="${newUser}">
                                 <div class="mb-3 text-center h1 fs-5">
                                     <label for="firstName" class="form-label">First name</label>
                                     <input type="text" class="form-control w-25 mx-auto" th:field="*{firstName}" id="firstName">
@@ -265,12 +269,11 @@
                                     <input type="password" class="form-control w-25 mx-auto" th:field="*{password}" id="password">
                                     <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Error age</div>
                                 </div>
-                                <select class="form-select w-25 mx-auto" size="4" multiple
+                                <select class="form-select w-25 mx-auto" name="selectedRoles" size="4" multiple
                                         aria-label="multiple select example">
                                     <option th:each="role : ${allRoles}"
                                             th:value="${role.id}"
-                                            th:text="${role.name}"
-                                            th:selected="${#lists.contains(newUser.roles, role)}">
+                                            th:text="${role.name}">
                                     </option>
                                 </select>
                                 <div class="d-flex justify-content-center">

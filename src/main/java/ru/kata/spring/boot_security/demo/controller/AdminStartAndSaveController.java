@@ -34,24 +34,24 @@ public class AdminStartAndSaveController {
     }
 
     //Страница со всеми пользователями
-    @GetMapping()
     @Transactional(readOnly = true)
+    @GetMapping()
     public String home(Model model) {
         model.addAttribute("users", userService.getAll());
         model.addAttribute("newUser", new User());
         model.addAttribute("allRoles", roleService.getAllRoles());
-        return "admin";
+        return "/admin";
     }
 
     //Отправка формы
-    @PostMapping()
+    @PostMapping(params = "action=create")
     public String saveUser(@ModelAttribute("newUser") @Valid User user, BindingResult bindingResult,
                            @RequestParam(name = "selectedRoles", required = false) List<Long> selectedRoleIds,
                            Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("allRoles", roleService.getAllRoles());
             model.addAttribute("selectedRoles", selectedRoleIds);
-            return "admin";
+            return "save";
         }
         Collection<Role> roles;
         if (selectedRoleIds == null || selectedRoleIds.isEmpty()) {
@@ -72,15 +72,15 @@ public class AdminStartAndSaveController {
     @Transactional(readOnly = true)
     @GetMapping("/update")
     public String editUser(@RequestParam Long id, Model model) {
-        User updateUser = userService.getById(id);
+        User user = userService.getById(id);
         model.addAttribute("allRoles", roleService.getAllRoles());
-        model.addAttribute("updateUser", updateUser);
+        model.addAttribute("user", user);
         return "update";
     }
 
     //Отправка формы обновления
     @PostMapping("/update")
-    public String updateUser(@RequestParam Long id, @Valid @ModelAttribute("updateUser") User user,
+    public String updateUser(@RequestParam Long id, @Valid @ModelAttribute("user") User user,
                              BindingResult bindingResult,
                              @RequestParam(name = "selectedRoles", required = false) List<Long> selectedRoleIds,
                              Model model) {
@@ -110,13 +110,13 @@ public class AdminStartAndSaveController {
     @Transactional(readOnly = true)
     @GetMapping("/delete")
     public String deleteUserWindow(@RequestParam Long id, Model model) {
-        User deleteUser = userService.getById(id);
-        model.addAttribute("deleteUser", deleteUser);
+        User user = userService.getById(id);
+        model.addAttribute("user", user);
         return "delete";
     }
 
     //Удаление пользователя
-    @PostMapping("/delete")
+    @PostMapping(params = "action=delete")
     public String deleteUser(@RequestParam Long id) {
         userService.delete(id);
         return "redirect:/admin";
