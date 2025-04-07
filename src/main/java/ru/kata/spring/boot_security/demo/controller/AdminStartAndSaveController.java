@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -9,8 +10,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
@@ -27,31 +30,43 @@ public class AdminStartAndSaveController {
 
     private final UserService userService;
     private final RoleService roleService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AdminStartAndSaveController(UserService userService, RoleService roleService) {
+    public AdminStartAndSaveController(UserService userService, RoleService roleService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.roleService = roleService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     //Страница со всеми пользователями
     @Transactional(readOnly = true)
     @GetMapping()
     public String home(Model model) {
+        if (!model.containsAttribute("newUser")) {
+            model.addAttribute("newUser", new User());
+        }
+        if (!model.containsAttribute("editUser")) {
+            model.addAttribute("editUser", new User());
+        }
         model.addAttribute("users", userService.getAll());
-        model.addAttribute("newUser", new User());
         model.addAttribute("allRoles", roleService.getAllRoles());
         return "/admin";
     }
+
 
     //Отправка формы
     @PostMapping(params = "action=create")
     public String saveUser(@ModelAttribute("newUser") @Valid User user, BindingResult bindingResult,
                            @RequestParam(name = "selectedRoles", required = false) List<Long> selectedRoleIds,
-                           Model model) {
+                           Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.newUser", bindingResult);
+            redirectAttributes.addFlashAttribute("newUser", user);
             model.addAttribute("allRoles", roleService.getAllRoles());
             model.addAttribute("selectedRoles", selectedRoleIds);
-            return "save";
+            return "redirect:/admin";
         }
         Collection<Role> roles;
         if (selectedRoleIds == null || selectedRoleIds.isEmpty()) {
@@ -68,28 +83,31 @@ public class AdminStartAndSaveController {
         return "redirect:/admin";
     }
 
-    //Обновление пользователя
-    @Transactional(readOnly = true)
-    @GetMapping("/update")
-    public String editUser(@RequestParam Long id, Model model) {
-        User user = userService.getById(id);
-        model.addAttribute("allRoles", roleService.getAllRoles());
-        model.addAttribute("user", user);
-        return "update";
-    }
+//    //Обновление пользователя
+//    @Transactional(readOnly = true)
+//    @GetMapping("/update")
+//    public String editUser(@RequestParam Long id, Model model) {
+//        User user = userService.getById(id);
+//        model.addAttribute("allRoles", roleService.getAllRoles());
+//        model.addAttribute("user", user);
+//        return "update";
+//    }
 
     //Отправка формы обновления
-    @PostMapping("/update")
-    public String updateUser(@RequestParam Long id, @Valid @ModelAttribute("user") User user,
+    @PostMapping(params = "action=update")
+    public String updateUser(@ModelAttribute("editUser") @Valid  User user,
                              BindingResult bindingResult,
                              @RequestParam(name = "selectedRoles", required = false) List<Long> selectedRoleIds,
-                             Model model) {
+                             Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.getFieldErrors()
                 .stream()
-                .anyMatch(fieldError -> !fieldError.getField().equals("password")) || !user.getPassword().isEmpty()) {
+                .anyMatch(fieldError -> !fieldError.getField().equals("password")) ||
+                (!user.getPassword().isEmpty() && bindingResult.hasFieldErrors("password"))) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.editUser", bindingResult);
+            redirectAttributes.addFlashAttribute("editUser", user);
             model.addAttribute("allRoles", roleService.getAllRoles());
             model.addAttribute("selectedRoleIds", selectedRoleIds);
-            return "update";
+            return "redirect:/admin";
         }
         Collection<Role> roles;
         if (selectedRoleIds == null || selectedRoleIds.isEmpty()) {
@@ -104,15 +122,6 @@ public class AdminStartAndSaveController {
         user.setRoles(roles);
         userService.update(user);
         return "redirect:/admin";
-    }
-
-    //Окно всплытия удаление пользователя
-    @Transactional(readOnly = true)
-    @GetMapping("/delete")
-    public String deleteUserWindow(@RequestParam Long id, Model model) {
-        User user = userService.getById(id);
-        model.addAttribute("user", user);
-        return "delete";
     }
 
     //Удаление пользователя

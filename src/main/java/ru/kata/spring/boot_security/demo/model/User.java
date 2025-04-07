@@ -56,7 +56,6 @@ public class User implements UserDetails {
     private String username;
 
     @NotEmpty(message = "There are no empty password")
-    @Size(min = 4, message = "Password must be more than 5 characters")
     @Column(nullable = false, unique = true)
     private String password;
 
