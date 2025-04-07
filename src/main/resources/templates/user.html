@@ -28,9 +28,11 @@
 </header>
 <div class="d-flex w-auto" style="height: 1000px;">
     <div class="mt-4 w-25 top-25 start-0 bg-white h-100">
-        <ul class="nav nav-pills flex-column bg-white" th:each="exUser : ${users}">
-            <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="#" th:classappend="${exUser.id == exUser.getId()} ? 'active'"
+        <ul class="nav nav-pills flex-column bg-white">
+            <li class="nav-item" th:each="exUser : ${users}">
+                <a class="nav-link" aria-current="page"
+                   th:href="@{${(isAdmin and user.username == exUser.username) ? '/admin' : '/' + exUser.username}}"
+                   th:classappend="${currentUser.id == exUser.id} ? 'active'"
                    th:text="${exUser.username}"></a>
             </li>
         </ul>
@@ -52,19 +54,19 @@
                         <th scope="col">ID</th>
                         <th scope="col">First Name</th>
                         <th scope="col">Last Name</th>
-                        <th scope="col">Age</th>
                         <th scope="col">Email</th>
+                        <th scope="col">Age</th>
                         <th scope="col">Role</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:object="${user}" class="border-top">
-                        <td th:text="${user.getId()}">№</td>
-                        <td th:text="${user.getFirstName()}">Имя</td>
-                        <td th:text="${user.getLastName()}">Фамилия</td>
-                        <td th:text="${user.getEmail()}">Почта</td>
-                        <td th:text="${user.getAge()}">Возраст</td>
-                        <td th:text="${user.getUsername()}">Username</td>
+                    <tr th:object="${currentUser}" class="border-top">
+                        <td th:text="${currentUser.getId()}">№</td>
+                        <td th:text="${currentUser.getFirstName()}">Имя</td>
+                        <td th:text="${currentUser.getLastName()}">Фамилия</td>
+                        <td th:text="${currentUser.getEmail()}">Почта</td>
+                        <td th:text="${currentUser.getAge()}">Возраст</td>
+                        <td th:text="${currentUser.getRoles()}">Username</td>
                     </tr>
                     </tbody>
                 </table>

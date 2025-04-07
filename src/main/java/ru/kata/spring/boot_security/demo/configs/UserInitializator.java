@@ -30,16 +30,16 @@ public class UserInitializator implements CommandLineRunner {
         Role roleUser = roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new Role("ROLE_USER")));
 
-        if (userRepository.findByUsername("admin") == null) {
-            User admin = new User();
-            admin.setFirstName("Fedor");
-            admin.setLastName("Drozdov");
-            admin.setEmail("drozd@gmail.com");
-            admin.setAge(22);
-            admin.setUsername("admin");                                          // USERNAME - admin
-            admin.setPassword(passwordEncoder.encode("admin"));      // PASSWORD - admin
-            admin.setRoles(List.of(roleAdmin, roleUser));
-            userRepository.save(admin);
+        if (userRepository.findByUsername("main") == null) {
+            User main = new User();
+            main.setFirstName("Fedor");
+            main.setLastName("Drozdov");
+            main.setEmail("drozd@gmail.com");
+            main.setAge(22);
+            main.setUsername("main");                                          // USERNAME - main
+            main.setPassword(passwordEncoder.encode("main"));      // PASSWORD - main
+            main.setRoles(List.of(roleAdmin, roleUser));
+            userRepository.save(main);
         }
 
         if (userRepository.findByUsername("user") == null) {

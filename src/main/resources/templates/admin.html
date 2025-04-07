@@ -16,6 +16,7 @@
     }
 </style>
 <body>
+<!--Вверхняя панель с именем пользователя его ролью и логаутом-->
 <header>
     <nav class="navbar navbar-dark bg-dark">
         <div class="container-fluid">
@@ -29,19 +30,25 @@
         </div>
     </nav>
 </header>
+<!--Полный блок информации страницы-->
 <div class="d-flex w-auto" style="height: 1000px;">
+<!--Левая боковая панель с именами существующих пользователей-->
     <div class="mt-4 w-25 top-25 start-0 bg-white h-100">
         <ul class="nav nav-pills flex-column bg-white" th:each="user : ${users}">
             <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="#" th:classappend="${user.id == user.getId()} ? 'active'"
+                <a class="nav-link" aria-current="page" th:href="@{'/' + ${user.getUsername()}}"
+                   th:classappend="${username == user.getUsername()} ? 'active'"
                    th:text="${user.username}"></a>
             </li>
         </ul>
     </div>
+<!--Основной блок информации-->
     <div class="container-fluid ps-5 pe-5">
+<!--Заголовок на странице-->
         <div class="container-sm p-3 ms-0 ps-0 fw-bold fs-1">
             Admin panel
         </div>
+<!--Кнопки всех пользователей и создания нового пользователя-->
         <ul class="nav nav-tabs" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="pills-users-tab" data-bs-toggle="pill" data-bs-target="#pills-users"
@@ -54,8 +61,8 @@
                 </button>
             </li>
         </ul>
-
         <div class="tab-content" id="pills-tabContent">
+<!--Таблица пользователей с информацией и кнопками редактирования и удаления-->
             <div class="tab-pane fade show active" id="pills-users" role="tabpanel" aria-labelledby="pills-users-tab">
                 <nav class="navbar navbar-light bg-light border-top">
                     <div class="container-fluid">
@@ -86,6 +93,7 @@
                                 <td th:text="${user.getAge()}">Возраст</td>
                                 <td th:text="${user.getRoles()}">Role</td>
                                 <td class="config_btn">
+                                <!--Кнопка редактирования пользователя-->
                                     <div>
                                         <button type="button" class="btn btn-success" data-bs-toggle="modal"
                                                 th:attr="data-bs-target='#updateModal' + ${user.id}">
@@ -103,6 +111,7 @@
                                                                     data-bs-dismiss="modal"
                                                                     aria-label="Close"></button>
                                                         </div>
+                                                    <!--Тело модального окна с формой для заполнения-->
                                                         <div class="modal-body">
                                                             <div class="container-fluid px-4 border-none">
                                                                 <form th:action="@{/admin(action='update')}"
@@ -117,7 +126,8 @@
                                                                                class="form-control w-50 mx-auto"
                                                                                name="firstName"
                                                                                th:value="${user.firstName}"
-                                                                               th:id="'firstNameEdit' + ${user.id}" required>
+                                                                               th:id="'firstNameEdit' + ${user.id}"
+                                                                               required>
                                                                     </div>
                                                                     <div class="mb-3 text-center h1 fs-5">
                                                                         <label for="lastName" class="form-label">Last
@@ -133,7 +143,8 @@
                                                                         <input type="number"
                                                                                class="form-control w-50 mx-auto"
                                                                                name="age" required min="0"
-                                                                               th:value="${user.age}" th:id="'ageEdit' + ${user.id}">
+                                                                               th:value="${user.age}"
+                                                                               th:id="'ageEdit' + ${user.id}">
                                                                     </div>
                                                                     <div class="mb-3 text-center h1 fs-5">
                                                                         <label for="email"
@@ -141,7 +152,8 @@
                                                                         <input type="email"
                                                                                class="form-control w-50 mx-auto"
                                                                                name="email" required
-                                                                               th:value="${user.email}" th:id="'emailEdit' + ${user.id}">
+                                                                               th:value="${user.email}"
+                                                                               th:id="'emailEdit' + ${user.id}">
                                                                     </div>
                                                                     <div class="mb-3 text-center h1 fs-5">
                                                                         <label for="username"
@@ -158,7 +170,8 @@
                                                                                class="form-label">Password</label>
                                                                         <input type="password"
                                                                                class="form-control w-50 mx-auto"
-                                                                               name="password" pattern=".{3,}|^$" title="Пароль должен быть больше/равен 3-м символам"
+                                                                               name="password" pattern=".{3,}|^$"
+                                                                               title="Пароль должен быть больше/равен 3-м символам"
                                                                                th:field="*{password}"
                                                                                th:id="'passwordEdit' + ${user.id}">
                                                                     </div>
@@ -190,6 +203,7 @@
                                 </td>
                                 <td class="config_btn">
                                     <div>
+                                    <!--Кнопка удаления пользователя-->
                                         <button data-bs-toggle="modal" type="button" class="btn btn-danger"
                                                 th:attr="data-bs-target='#deleteModal' + ${user.id}">Delete
                                         </button>
@@ -203,6 +217,7 @@
                                                                 aria-label="Close">
                                                         </button>
                                                     </div>
+                                                    <!--Тело модального окна для удаления пользователя-->
                                                     <div class="modal-body">
                                                         <div class="container-fluid px-4 border-none">
                                                             <form th:action="@{/admin(action='delete')}" method="post">
@@ -227,13 +242,15 @@
                                                                     <label for="Age" class="form-label">Age</label>
                                                                     <input type="number" disabled
                                                                            class="form-control w-50 mx-auto"
-                                                                           th:value="${user.age}" th:id="'AgeDelete' + ${user.id}">
+                                                                           th:value="${user.age}"
+                                                                           th:id="'AgeDelete' + ${user.id}">
                                                                 </div>
                                                                 <div class="mb-3 text-center h1 fs-5">
                                                                     <label for="email" class="form-label">Email</label>
                                                                     <input type="email" disabled
                                                                            class="form-control w-50 mx-auto"
-                                                                           th:value="${user.email}" th:id="'emailDelete' + ${user.id}">
+                                                                           th:value="${user.email}"
+                                                                           th:id="'emailDelete' + ${user.id}">
                                                                 </div>
                                                                 <div class="mb-3 h1 text-center fs-5">
                                                                     <label for="username"
@@ -275,6 +292,7 @@
                     </div>
                 </div>
             </div>
+            <!--Таб с формой для создания нового пользователя-->
             <div class="tab-pane fade" id="pills-new-user" role="tabpanel" aria-labelledby="pills-new-user-tab">
                 <nav class="navbar navbar-light bg-light">
                     <div class="container-fluid">

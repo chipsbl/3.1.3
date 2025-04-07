@@ -1,6 +1,5 @@
 package ru.kata.spring.boot_security.demo.controller;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -13,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -26,22 +25,17 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
-public class AdminStartAndSaveController {
+public class AdminController {
 
     private final UserService userService;
     private final RoleService roleService;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public AdminStartAndSaveController(UserService userService, RoleService roleService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    //Страница со всеми пользователями
-    @Transactional(readOnly = true)
+    //Главная админская страница со всеми CRUD операциями
     @GetMapping()
     public String home(Model model) {
         if (!model.containsAttribute("newUser")) {
@@ -56,7 +50,7 @@ public class AdminStartAndSaveController {
     }
 
 
-    //Отправка формы
+    //Отправка формы создания пользователя
     @PostMapping(params = "action=create")
     public String saveUser(@ModelAttribute("newUser") @Valid User user, BindingResult bindingResult,
                            @RequestParam(name = "selectedRoles", required = false) List<Long> selectedRoleIds,
@@ -68,34 +62,14 @@ public class AdminStartAndSaveController {
             model.addAttribute("selectedRoles", selectedRoleIds);
             return "redirect:/admin";
         }
-        Collection<Role> roles;
-        if (selectedRoleIds == null || selectedRoleIds.isEmpty()) {
-            roles = Collections.singletonList(roleService.findByName("ROLE_USER"));
-        } else {
-            roles = selectedRoleIds.stream()
-                    .map(roleService::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-        }
-        user.setRoles(roles);
+        userService.setRoles(user, selectedRoleIds);
         userService.save(user);
         return "redirect:/admin";
     }
 
-//    //Обновление пользователя
-//    @Transactional(readOnly = true)
-//    @GetMapping("/update")
-//    public String editUser(@RequestParam Long id, Model model) {
-//        User user = userService.getById(id);
-//        model.addAttribute("allRoles", roleService.getAllRoles());
-//        model.addAttribute("user", user);
-//        return "update";
-//    }
-
-    //Отправка формы обновления
+    //Отправка формы обновления пользователя
     @PostMapping(params = "action=update")
-    public String updateUser(@ModelAttribute("editUser") @Valid  User user,
+    public String updateUser(@ModelAttribute("editUser") @Valid User user,
                              BindingResult bindingResult,
                              @RequestParam(name = "selectedRoles", required = false) List<Long> selectedRoleIds,
                              Model model, RedirectAttributes redirectAttributes) {
@@ -109,17 +83,7 @@ public class AdminStartAndSaveController {
             model.addAttribute("selectedRoleIds", selectedRoleIds);
             return "redirect:/admin";
         }
-        Collection<Role> roles;
-        if (selectedRoleIds == null || selectedRoleIds.isEmpty()) {
-            roles = Collections.singletonList(roleService.findByName("ROLE_USER"));
-        } else {
-            roles = selectedRoleIds.stream()
-                    .map(roleService::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-        }
-        user.setRoles(roles);
+        userService.setRoles(user, selectedRoleIds);
         userService.update(user);
         return "redirect:/admin";
     }
