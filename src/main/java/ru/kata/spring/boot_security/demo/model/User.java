@@ -15,10 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -33,29 +29,20 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(nullable = false)
-    @NotEmpty(message = "There are no empty names")
-    @Size(min = 2, max = 30, message = "Keep the range between 2 and 30 characters")
     private String firstName;
 
     @Column(nullable = false)
-    @NotEmpty(message = "There are no empty second names")
-    @Size(min = 2, max = 30, message = "Keep the range between 2 and 30 characters")
     private String lastName;
 
     @Column(nullable = false)
-    @NotEmpty(message = "There are no empty email")
-    @Email(message = "Please ensure that your email is spelled correctly")
     private String email;
 
     @Column(nullable = false)
-    @Min(value = 0, message = "A person cannot be less than 0 years old")
     private int age;
 
     @Column(nullable = false, unique = true)
-    @NotEmpty(message = "There are no empty username")
     private String username;
 
-    @NotEmpty(message = "There are no empty password")
     @Column(nullable = false, unique = true)
     private String password;
 
