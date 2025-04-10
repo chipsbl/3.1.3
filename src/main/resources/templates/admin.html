@@ -31,13 +31,18 @@
 </header>
 <!--Полный блок информации страницы-->
 <div class="d-flex w-auto" style="height: 1000px;">
-<!--Левая боковая панель с именами существующих пользователей-->
+<!--Левая боковая панель с админом и пользователем-->
     <div class="mt-4 w-25 top-25 start-0 bg-white h-100">
-        <ul class="nav nav-pills flex-column bg-white" th:each="user : ${users}">
+        <ul class="nav nav-pills flex-column bg-white">
             <li class="nav-item">
-                <a class="nav-link" aria-current="page" th:href="@{'/' + ${user.getUsername()}}"
-                   th:classappend="${username == user.getUsername()} ? 'active'"
-                   th:text="${user.username}"></a>
+                <a class="nav-link" aria-current="page" th:href="@{/admin}"
+                   th:classappend="${#httpServletRequest.requestURI.contains('/admin')} ? 'active'"
+                   th:text="'Admin'"></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" aria-current="page" th:href="@{/user}"
+                   th:classappend="${#httpServletRequest.requestURI.contains('/user')} ? 'active'"
+                   th:text="'User'"></a>
             </li>
         </ul>
     </div>
